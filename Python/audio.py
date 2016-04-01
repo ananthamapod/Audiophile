@@ -1,6 +1,6 @@
 import pyaudio
 import wave
-import time
+import numpy as np
 
 class Audio(object):
     """ Audio class for interacting with microphone, stores recordings
@@ -72,17 +72,75 @@ class Audio(object):
             print "No recordings exist for those coordinates"
             return False
 
-    def getFrames(self):
+    def get_frames(self):
         """ Getter """
         return self.frames
 
+    def analyze_frames(self, coords, calibration_coords=None):
+        frames = self.frames.get(coords)
+        if not frames:
+            print "No recodings exist for those coordinates"
+        else:
+            # using Blackman window
+            window = np.blackman(self.CHUNK)
+            swidth = self.mic.get_sample_size(self.FORMAT)
+            frames = b''.join(frames)
+            indata = np.array(wave.struct.unpack("%dh"%(len(frames)/swidth), frames))
+            # taking FFT here
+            fftData=abs(np.fft.rfft(indata))
+
+            import matplotlib.pyplot as plt
+            fig = plt.figure()
+            timeSeries = None
+            frequencySeries = None
+            timeSeries = fig.add_subplot(211)
+            frequencySeries = fig.add_subplot(212)
+            x = range(len(indata))
+            timeSeries.plot(x, indata)
+
+            x = range(len(fftData))
+            frequencySeries.plot(x, fftData)
+
+            plt.grid(True)
+            fig.canvas.set_window_title('Coords:' + str(coords))
+            fig.canvas.show()
+            plt.show(block=True)
+
+            if calibration_coords:
+                fig = plt.figure()
+                corrected_timeSeries = fig.add_subplot(211)
+                corrected_frequencySeries = fig.add_subplot(212)
+                calib_frames = self.frames.get(calibration_coords)
+                calib_frames = b''.join(calib_frames)
+                calib_indata = np.array(wave.struct.unpack("%dh"%(len(calib_frames)/swidth), calib_frames))
+                corrected_indata = indata - calib_indata
+                fftData=abs(np.fft.rfft(corrected_indata))
+                x = range(len(indata))
+                corrected_timeSeries.plot(x, corrected_indata)
+
+                x = range(len(fftData))
+                corrected_frequencySeries.plot(x, fftData)
+                plt.grid(True)
+                fig.canvas.set_window_title(str(coords)+ ' Calibrated with ' + str(calibration_coords))
+                fig.canvas.show()
+                plt.show(block=True)
+                wf = wave.open("test3.wav", 'wb')
+                wf.setnchannels(self.CHANNELS)
+                wf.setsampwidth(self.mic.get_sample_size(self.FORMAT))
+                wf.setframerate(self.RATE)
+                print len(frames)/swidth
+                print len(calib_frames)/swidth
+                indata = wave.struct.pack("%dh"%(len(frames)/swidth), indata)
+                wf.writeframes(indata)
+                wf.close()
 
 if __name__ == "__main__":
     """ Testing the Audio class """
-    audio = Audio(10)
+    audio = Audio(4)
     audio.open_mic()
     audio.record(1)
     audio.record(2)
     audio.write_to_wav("test1.wav",1)
     audio.write_to_wav("test2.wav",2)
+    audio.analyze_frames(1)
     audio.close_mic()
