@@ -1,6 +1,7 @@
 import constants
 from percept import Percept
 from intention import Intention
+from collections import deque
 
 class Agent(object):
     """Main Agent class, handles all interactions with percepts, intentions,
