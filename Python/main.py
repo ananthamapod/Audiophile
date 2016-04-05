@@ -1,7 +1,7 @@
 import serial
-from plotter import Plotter
+from analysis.plotter import Plotter
 from agent import Agent
-from audio import Audio
+from analysis.audio import Audio
 from operator import itemgetter
 import time
 
