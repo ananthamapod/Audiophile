@@ -1,6 +1,7 @@
 import pyaudio
 import wave
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Audio(object):
     """ Audio class for interacting with microphone, stores recordings
@@ -89,7 +90,6 @@ class Audio(object):
             # taking FFT here
             fftData=abs(np.fft.rfft(indata))
 
-            import matplotlib.pyplot as plt
             fig = plt.figure()
             timeSeries = None
             frequencySeries = None
@@ -143,4 +143,5 @@ if __name__ == "__main__":
     audio.write_to_wav("test1.wav",1)
     audio.write_to_wav("test2.wav",2)
     audio.analyze_frames(1)
+    audio.analyze_frames(2,1)
     audio.close_mic()
