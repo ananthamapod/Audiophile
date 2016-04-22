@@ -4,6 +4,7 @@ from flask import Flask, redirect, request, render_template
 app = Flask(__name__, static_url_path="")
 
 ### GLOBALS ###
+project = None
 numPoints = 0
 tSeries = {}
 fSeries = {}
@@ -12,7 +13,19 @@ fSeries = {}
 # main route for dashboard
 @app.route('/')
 def home():
-	return "Hello world"
+	return app.send_static_file('index.html')
+
+
+# create new project for measurements
+@app.route('/new', methods=["POST"])
+def new():
+	if request.form.get("name"):
+		project = request.form.get("name")
+		numPoint = 0
+		tSeries.clear()
+		fSeries.clear()
+		return 'Success'
+	return redirect('/')
 
 
 # login for the robot
