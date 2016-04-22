@@ -1,7 +1,10 @@
 from flask import Flask, redirect, request, render_template
+from flask.ext.session import Session
+import secrets
 
 ### APP INTERNALS ###
 app = Flask(__name__, static_url_path="")
+Session(app)
 
 ### GLOBALS ###
 project = None
@@ -19,12 +22,13 @@ def home():
 # create new project for measurements
 @app.route('/new', methods=["POST"])
 def new():
-	if request.form.get("name"):
-		project = request.form.get("name")
-		numPoint = 0
-		tSeries.clear()
-		fSeries.clear()
-		return 'Success'
+	if session.get('robot'):
+		if request.form.get("name"):
+			project = request.form.get("name")
+			numPoint = 0
+			tSeries.clear()
+			fSeries.clear()
+			return 'Success'
 	return redirect('/')
 
 
@@ -32,7 +36,10 @@ def new():
 @app.route('/login', methods=["GET","POST"])
 def login():
 	if request.form.get("id"):
-		return "Welcome"
+		# very simple single key based authentication scheme
+		if request.form.get("id") == secrets.robot_id:
+			session['robot'] = True
+			return "Welcome"
 	
 	return redirect("/")
 
