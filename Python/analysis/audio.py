@@ -136,12 +136,21 @@ class Audio(object):
 
 if __name__ == "__main__":
     """ Testing the Audio class """
+    import time
     audio = Audio(4)
     audio.open_mic()
-    audio.record(1)
-    audio.record(2)
+    tmp = raw_input("")
+    for i in range(1,11):
+        print("3")
+        time.sleep(0.5)
+        print("2")
+        time.sleep(0.5)
+        print("1")
+        time.sleep(0.5)
+        audio.record(i)
+
     audio.write_to_wav("test1.wav",1)
     audio.write_to_wav("test2.wav",2)
-    audio.analyze_frames(1)
-    audio.analyze_frames(2,1)
+    for i in range(1,11):
+        audio.analyze_frames(i)
     audio.close_mic()
