@@ -73,9 +73,9 @@ class Audio(object):
             print "No recordings exist for those coordinates"
             return False
 
-    def get_frames(self):
+    def get_frames(self, coords):
         """ Getter """
-        return self.frames
+        return self.frames.get(coords)
 
     def analyze_frames(self, coords, calibration_coords=None):
         frames = self.frames.get(coords)

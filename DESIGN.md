@@ -1,4 +1,5 @@
 # Audiophile Agent
+>Rational agent that controls movement, recording, etc
 ## Environment
 Sensors
 * Ultrasound rangefinders

@@ -2,6 +2,7 @@ import serial
 from analysis.plotter import Plotter
 from agent import Agent
 from analysis.audio import Audio
+from client import Audiophile_Client
 from operator import itemgetter
 import time
 
@@ -14,18 +15,30 @@ def handshake(ser):
         # wait for serial handshake to register
         time.sleep(2)
 
-def act(intention, ser, audio, plotter):
+def act(intention, ser, audio, plotter, client):
     """ Deciphers intended action from intention, writes to serial,
     records audio, and plots respectively based on action parameters """
     c = intention.command
     v = intention.value
     print c
-#    if c = "TURN":
+	if c == "RECORD":
+		print("3")
+		time.sleep(0.5)
+		print("2")
+		time.sleep(0.5)
+		print("1")
+		time.sleep(0.5)
+		audio.record(v)
+		r = client.send_data(audio.getFrames(v))
+		if r == "Failure":
+			client.connect()
+			client.send_data(audio.getFrames(v))
+#    if c == "TURN":
 #        ser.write("T: " + str(v))
 #    elif c = "MOVETO":
 #        ser.write()
 
-def run(ser, audio, agent, plotter):
+def run(ser, audio, agent, plotter, client):
     """ Running loop """
     inputs = ser.readline()
     try:
@@ -35,12 +48,12 @@ def run(ser, audio, agent, plotter):
         l = inputs[0]
         f = inputs[1]
         r = inputs[2]
-        encoders = inputs[3:]
+#        encoders = inputs[3:]
         plotter.updatePlot(l, f, r)
-        percepts = agent.perceive(l=l,f=f,r=r,encoders=encoders)
+        percepts = agent.perceive(l=l,f=f,r=r)#encoders=encoders)
         intentions = agent.deliberate(percepts)
         for i in intentions:
-            act(i, ser, audio, plotter)
+            act(i, ser, audio, plotter, client)
     except:
         print inputs
 
@@ -53,7 +66,8 @@ def setup():
     agent = Agent()
     plotter = Plotter()
     plotter.configurePlots()
-    return ser, audio, agent, plotter
+	client = Audiophile_Client()
+    return ser, audio, agent, plotter, client
 
 def finish(audio):
     """ Takes all the recorded frames and plots them by coordinate """
@@ -63,12 +77,14 @@ def finish(audio):
 
 if __name__ == "__main__":
     """ Tests entire setup """
-    ser, audio, agent, plotter = setup()
+    ser, audio, agent, plotter, client = setup()
     handshake(ser)
+	audio.open_mic()
+	client.connect()
 
     while True:
         try:
-            run(ser, audio, agent, plotter)
+            run(ser, audio, agent, plotter, client)
         except KeyboardInterrupt:
             break
 
