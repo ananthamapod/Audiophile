@@ -1,9 +1,12 @@
-from flask import Flask, redirect, request, render_template
+from flask import Flask, redirect, request, render_template, session
 from flask.ext.session import Session
 import secrets
 
 ### APP INTERNALS ###
 app = Flask(__name__, static_url_path="")
+app.secret_key = 'super secret key'
+app.config['SESSION_TYPE'] = 'filesystem'
+	
 Session(app)
 
 ### GLOBALS ###
@@ -37,10 +40,10 @@ def new():
 def login():
 	if request.form.get("id"):
 		# very simple single key based authentication scheme
-		if request.form.get("id") == secrets.robot_id:
+		print request.form.get("id")
+		if str(request.form.get("id")) == secrets.robot_id:
 			session['robot'] = True
 			return "Welcome"
-	
 	return redirect("/")
 
 
