@@ -19,6 +19,8 @@ fSeries = {}
 # main route for dashboard
 @app.route('/')
 def home():
+	print numPoints
+	print tSeries
 	return app.send_static_file('index.html')
 
 
@@ -32,7 +34,7 @@ def new():
 			tSeries.clear()
 			fSeries.clear()
 			return 'Success'
-	return redirect('/')
+	return 'Failure'
 
 
 # login for the robot
@@ -48,9 +50,19 @@ def login():
 
 
 # route for the robot to add data for the project
-@app.route('/addFrames', methods=["POST"])
+@app.route('/add', methods=["POST"])
 def frames():
-	pass
+	global numPoints
+	global tSeries
+	if session.get('robot'):
+		coords = request.form.get('coords')
+		frames = request.form.get('tSeries')
+		if coords and frames:
+			if not tSeries.get(coords):
+				numPoints += 1
+			tSeries[coords] = frames
+			return "Success"
+	return "Failure"
 
 
 if __name__ == '__main__':

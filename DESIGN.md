@@ -9,7 +9,7 @@
 		* if nonauthenticated user - redirect to home
     * params:
     	* id - authentication code
-3. POST /addFrames
+3. POST /add
 	* 2 states:
 		* if robot - upload new set of frames corresponding to a coordinate (both insert and update)
 		* if nonauthenticated user - redirect to home
