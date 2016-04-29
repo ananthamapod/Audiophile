@@ -1,9 +1,11 @@
 from flask import Flask, redirect, request, render_template, session
 from flask.ext.session import Session
 import secrets
-
+from datetime import datetime
+import os
 ### APP INTERNALS ###
-app = Flask(__name__, static_url_path="")
+tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+app = Flask(__name__, static_url_path="", template_folder=tmpl_dir)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
 	
@@ -14,6 +16,7 @@ project = None
 numPoints = 0
 tSeries = {}
 fSeries = {}
+startTime = None
 
 
 # main route for dashboard
@@ -21,18 +24,20 @@ fSeries = {}
 def home():
 	print numPoints
 	print tSeries
-	return app.send_static_file('index.html')
+	return render_template('home.html',pName='Rutgers Day Demo',numPoints=numPoints, start=startTime)
 
 
 # create new project for measurements
 @app.route('/new', methods=["POST"])
 def new():
+	global startTime
 	if session.get('robot'):
 		if request.form.get("name"):
 			project = request.form.get("name")
 			numPoint = 0
 			tSeries.clear()
 			fSeries.clear()
+			startTime = datetime.now()
 			return 'Success'
 	return 'Failure'
 
