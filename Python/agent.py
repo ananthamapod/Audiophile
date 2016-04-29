@@ -2,6 +2,8 @@ import constants
 from percept import Percept
 from intention import Intention
 from collections import deque
+import math
+import datetime
 
 class Agent(object):
     """Main Agent class, handles all interactions with percepts, intentions,
@@ -14,6 +16,16 @@ class Agent(object):
         self.rightStore = deque([None] * 20, maxlen=20)
         self.frontStore = deque([None] * 20, maxlen=20)
         self.currState = 'orient'
+        self.prevTime = datetime.datetime.now()
+        self.prevLeft = 0
+        self.prevRight = 0
+        self.currLeft = None
+        self.currRight = None
+        self.currPos = 0
+        self.currTurn = 0
+        self.currAngle = 0
+        self.targetSpeed = 0
+        self.targetAngle = 0
 
     def perceive(self, **kwargs):
         """ Interprets sensations as percepts about the agent's world,
@@ -25,9 +37,10 @@ class Agent(object):
                 frontStore.append(kwargs.get('f'))
                 rightStore.append(kwargs.get('r'))
                 percepts.append(Percept())
-                return
+                return percepts
             print "Perceiving ..."
-            encoders = kwargs.get('encoders')
+            #encoders = kwargs.get('encoders')
+            encoders = [self.prevLeft, self.prevRight]
             if encoders:
                 print encoders
                 left, right = encoders
@@ -35,8 +48,8 @@ class Agent(object):
                     percepts.append(Percept('speed', left))
                 else:
                     # Governing turning equation:
-                    # d_theta_Tank = L/2 (R d_theta_left) - L/2 (R d_theta_right)
-                    percepts.append(Percept('angle', (constants.L*constants.R/2.0)*(left-right)))
+                    # d_theta_Tank/d_t = L/2 (R d_theta_left/d_t) - L/2 (R d_theta_right/d_t)
+                    percepts.append(Percept('turn', (constants.L*constants.R/2.0)*(left-right)))
 
         return percepts
 
@@ -46,7 +59,12 @@ class Agent(object):
         intentions = []
         for p in percepts:
             if p.description is not "Empty":
-                print p.description + ": " + str(p.value)
+                if p.description is "speed":
+                    if p.value is not self.targetSpeed:
+                        speed = round(p.value + (self.targetSpeed-p.value)/2)
+                        print "speed is %d\n" % speed
+                if p.description is "turn":
+                    pass
         if len(intentions) == 0:
             intentions.append(Intention())
         return intentions
