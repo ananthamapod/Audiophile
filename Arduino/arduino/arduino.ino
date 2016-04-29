@@ -9,14 +9,14 @@
 /************************* GLOBALS *************************/
 
 // Create the motor shield object with the default I2C address
-//Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
+Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
 // Or, create it with a different I2C address (say for stacking)
 // Adafruit_MotorShield AFMS = Adafruit_MotorShield(0x61); 
 
 // Select which 'port' M1, M2, M3 or M4. In this case, M1
-//Adafruit_DCMotor *leftMotor = AFMS.getMotor(1);
+Adafruit_DCMotor *leftMotor = AFMS.getMotor(1);
 // You can also make another motor on port M3
-//Adafruit_DCMotor *rightMotor = AFMS.getMotor(3);
+Adafruit_DCMotor *rightMotor = AFMS.getMotor(3);
 
 const int pingPinLeft = 5;
 const int pingPinFront = 7;
@@ -25,7 +25,6 @@ long distanceLeft = 0;
 long distanceFront = 0;
 long distanceRight = 0;
 String instr;
-const int ledPin = 13;
 const int leftPin = 4;
 const int rightPin = 3;
 
@@ -34,7 +33,7 @@ const int rightPin = 3;
 
 void setup()
 {
-  //AFMS.begin();
+  AFMS.begin();
   
   // Set the speed to start, from 0 (off) to 255 (max speed)
   leftMotor->setSpeed(0);
@@ -43,7 +42,6 @@ void setup()
   leftMotor->run(RELEASE);
   rightMotor->run(RELEASE);
 
-  pinMode(ledPin, OUTPUT);
   // initialize serial communications at a 9600 baud rate
   Serial.begin(9600);
   establishContact();
@@ -52,8 +50,11 @@ void setup()
 void loop()
 {
   if(Serial.available()) {
-    instr = Serial.readString();
-    //move(instr);
+    String op  = Serial.readStringUntil(' ');
+    //Serial.read(); //next character is comma, so skip it using this  
+    String value  = Serial.readStringUntil('\n');
+    //Serial.read();
+    move(op, value);
   }
   
   Serial.print(distanceLeft);
@@ -61,7 +62,7 @@ void loop()
   Serial.print(distanceFront);
   Serial.print(" ");
   Serial.println(distanceRight);
-  //wait 100 milliseconds so we don't drive themselves crazy
+  //wait 300 milliseconds for now because we don't need unnecessarily large amounts of sensor data
   distanceLeft = microsecondsToInches(ping(pingPinLeft));
   distanceFront = microsecondsToInches(ping(pingPinFront));
   distanceRight = microsecondsToInches(ping(pingPinRight));
@@ -77,15 +78,15 @@ void establishContact() {
   }
 }
 
-void move(String instr) {
-  String[] tmp = instr.split(" ");
-  String op = tmp[0];
-  double val = (double) tmp[1];
+void move(String op, String value) {
+  //String tmp[] = instr.split(" ");
+  //String op = tmp[0];
+  int val = value.toInt();
   // Both sides move forward at the same rate
   // Speed set at moderate, not maximum
-  if(instr.equals("FORWARD")) {
-    leftMotor->setSpeed(100);
-    rightMotor->setSpeed(100);
+  if(op.equals("FORWARD")) {
+    leftMotor->setSpeed(val);
+    rightMotor->setSpeed(val);
     leftMotor->run(FORWARD);
     rightMotor->run(FORWARD);
   }
@@ -93,9 +94,9 @@ void move(String instr) {
   // Turns on the tank thread principle
   // One side moves forward, the other side moves backward
   // Turning is set at a slower speed for precision
-  else if(instr.equals("LEFT")) {
-    leftMotor->setSpeed(60);
-    rightMotor->setSpeed(60);
+  else if(op.equals("LEFT")) {
+    leftMotor->setSpeed(val);
+    rightMotor->setSpeed(val);
     leftMotor->run(BACKWARD);
     rightMotor->run(FORWARD);
   }
@@ -103,20 +104,25 @@ void move(String instr) {
   // Turns on the tank thread principle
   // One side moves forward, the other side moves backward
   // Turning is set at a slower speed for precision
-  else if(instr.equals("RIGHT")) {
-    leftMotor->setSpeed(60);
-    rightMotor->setSpeed(60);
+  else if(op.equals("RIGHT")) {
+    leftMotor->setSpeed(val);
+    rightMotor->setSpeed(val);
     leftMotor->run(FORWARD);
     rightMotor->run(BACKWARD);
   }
 
   // Comes to a stop
   // Speed comes to zero
-  else if(instr.equals("STOP")) {
+  else if(op.equals("STOP")) {
     leftMotor->setSpeed(0);
     rightMotor->setSpeed(0);
     leftMotor->run(RELEASE);
     rightMotor->run(RELEASE);
+  }
+  
+  else if(op.equals("TEST")) {
+    leftMotor->setSpeed(140);
+    leftMotor->run(FORWARD); 
   }
 }
 
