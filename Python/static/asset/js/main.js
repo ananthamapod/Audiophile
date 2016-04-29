@@ -102,12 +102,6 @@
          $('.opener-left-menu').on('click', function(){
             $(".line-chart").width("100%");
             $(".mejs-video").height("auto").width("100%");
-            if($('#right-menu').is(":visible"))
-            {
-               $('#right-menu').animate({ 'width': '0px' }, 'slow', function(){
-                      $('#right-menu').hide();
-                  });
-            }
             if( $('#left-menu .sub-left-menu').is(':visible') ) {
                 $('#content').animate({ 'padding-left': '0px'}, 'slow');
                 $('#left-menu .sub-left-menu').animate({ 'width': '0px' }, 'slow', function(){
@@ -143,51 +137,6 @@
         });
 
     };
-
-
-    this.rightMenu =  function(){
-            $('.opener-right-menu').on('click', function(){
-            userList();
-            $(".user").niceScroll();
-            $(".user ul li").on('click',function(){
-                $(".user-list ul").getNiceScroll().remove();
-                $(".user").hide();
-                $(".chatbox").show(1000);
-                userList();
-            });
-
-            $(".close-chat").on("click",function(){
-                $(".user").show();
-                $(".chatbox").hide(1000);
-            });
-
-            $(".line-chart").width("100%");
-
-            if($('#left-menu .sub-left-menu').is(':visible')) {
-                $('#left-menu .sub-left-menu').animate({ 'width': '0px' }, 'slow', function(){
-                    $('#left-menu .sub-left-menu').hide();
-                     $('.overlay').show();
-                      $('.opener-left-menu').removeClass('is-open');
-                      $('.opener-left-menu').addClass('is-closed');
-                });
-
-                $('#content').animate({ 'padding-left': '0px'}, 'slow');
-            }
-
-            if($('#right-menu').is(':visible') ) {
-                $('#right-menu').animate({ 'width': '0px' }, 'slow', function(){
-                    $('#right-menu').hide();
-                });
-                $('#content').animate({ 'padding-right': '0px'}, 'slow');
-            }
-            else {
-                $('#right-menu').show();
-                $('#right-menu').animate({ 'width': '230px' }, 'slow');
-                $('#content').animate({ 'padding-right': '230px'}, 'slow');
-            }
-        });
-    };
-
 
 
     $(".box-v6-content-bg").each(function(){
@@ -336,7 +285,6 @@
 
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
     leftMenu();
-    rightMenu();
     treeMenu();
     hide();
 })(jQuery);
