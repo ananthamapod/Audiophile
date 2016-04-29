@@ -2,4 +2,5 @@ secrets.py
 flask_session/
 env/
 practice/
+scratchspace/
 *.pyc
