@@ -2742,7 +2742,7 @@ ul li a:focus {
       font-weight: 400;
     }
       .box-v2 .panel-body .box-v2-detail img{
-        width: 100%;
+        width: 6em;
         height: auto;
         border: 3px solid #fff;
       }
