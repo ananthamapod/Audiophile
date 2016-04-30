@@ -65,7 +65,7 @@ def setup():
 	audio = Audio()
 	agent = Agent()
 	plotter = Plotter()
-	plotter.configurePlots()
+	#plotter.configurePlots()
 	client = Audiophile_Client()
 	return ser, audio, agent, plotter, client
 
@@ -73,24 +73,27 @@ def finish(audio):
     """ Takes all the recorded frames and plots them by coordinate """
     #frames = audio.getFrames()
     #coordinates = sorted(frames.keys(), key=itemgetter(0,1))
-    pass
+    audio.close_mic()
 
 
 def robot_stop(currSpeed, ser):
 	while currSpeed is not 0:
 		currSpeed = int(math.floor(currSpeed - (currSpeed)/3.))
-		if currSpeed < 40:
+		if currSpeed < 60:
 			currSpeed = 0
 		ser.write("FORWARD " + str(currSpeed))
 		print "s" + str(currSpeed)
 		time.sleep(2)
 	ser.write("STOP")
+	time.sleep(2)
 	return currSpeed
 
 def robot_go(currSpeed, ser):
-	if currSpeed is not 100:
-		currSpeed = max(currSpeed, 40)
-	while currSpeed is not 100:
+	if currSpeed is not 60:
+		currSpeed = max(currSpeed, 60)
+		ser.write("FORWARD " + str(currSpeed))
+		time.sleep(2)
+	while currSpeed is not 60:
 		currSpeed = int(math.ceil(currSpeed + (100-currSpeed)/3.))
 		ser.write("FORWARD " + str(currSpeed))
 		print "g" + str(currSpeed)
@@ -120,6 +123,8 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             break
 	"""
+
+	# temp loop for demoing robot movement
 	currSpeed = 0
 	"""
 	while True:
@@ -139,8 +144,12 @@ if __name__ == "__main__":
 	"""
 	#for j in range(2):
 	for i in range(4):
-		currSpeed = robot_go(currSpeed, ser)
-		currSpeed = robot_stop(currSpeed, ser)
+		ser.write("FORWARD 60")
+		time.sleep(2)
+		ser.write("STOP")
+		time.sleep(2)
+		#currSpeed = robot_go(currSpeed, ser)
+		#currSpeed = robot_stop(currSpeed, ser)
 		print("3")
 		time.sleep(0.5)
 		print("2")
