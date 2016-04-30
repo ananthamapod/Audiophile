@@ -3,12 +3,15 @@ from flask.ext.session import Session
 import secrets
 from datetime import datetime
 import os
+import json
+from audio import FFT
+
 ### APP INTERNALS ###
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, static_url_path="", template_folder=tmpl_dir)
 app.secret_key = 'super secret key'
 app.config['SESSION_TYPE'] = 'filesystem'
-	
+
 Session(app)
 
 ### GLOBALS ###
@@ -23,8 +26,7 @@ startTime = None
 @app.route('/')
 def home():
 	print numPoints
-	print tSeries
-	return render_template('home.html',pName='Rutgers Day Demo',numPoints=numPoints, start=startTime)
+	return render_template('home.html',pName='Rutgers Day Demo',numPoints=numPoints, start=startTime, fData=fSeries)
 
 
 # create new project for measurements
@@ -65,7 +67,7 @@ def frames():
 		if coords and frames:
 			if not tSeries.get(coords):
 				numPoints += 1
-			tSeries[coords] = frames
+			tSeries[coords], fSeries[coords] = FFT(frames)
 			return "Success"
 	return "Failure"
 
